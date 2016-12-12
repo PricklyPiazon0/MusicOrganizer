@@ -1,11 +1,14 @@
 import java.util.ArrayList;
+import java.util.Random;
 
 /**
  * A class to hold details of audio tracks.
- * Individual tracks may be played.
+ * Individual tracks may be played. Modified to play one random track from already added tracks
+ * and to randomize the play order of all added tracks
  * 
  * @author David J. Barnes and Michael Kölling
- * @version 2011.07.31
+ * @author Dana Sabatino
+ * @version 2016.12.11
  */
 public class MusicOrganizer
 {
@@ -15,6 +18,8 @@ public class MusicOrganizer
     private MusicPlayer player;
     // A reader that can read music files and load them as tracks.
     private TrackReader reader;
+    // a random number generator for randomizing track playlists
+    private Random rand = new Random();
 
     /**
      * Create a MusicOrganizer
@@ -169,5 +174,58 @@ public class MusicOrganizer
         for(Track track : tempTracks) {
             addTrack(track);
         }
+    }
+    
+    /**
+     * plays a random number track from the tracks arrayList of music tracks
+     */
+    public void playRandomTrack()
+    {
+        player.startPlaying(tracks.get(rand.nextInt(tracks.size())).getFilename());
+    }
+    
+    /**
+     * creates a random playlist of tracks for playing each track only once, but
+     * in a random order
+     */
+    public void randomizePlayList()
+    {
+        int[] randomList = new int[tracks.size()];
+        int randNum = -1;
+        boolean isNotUnique = false;
+        for (int index = 0; index <tracks.size(); index++)
+        {
+            do
+            {
+                randNum = rand.nextInt(tracks.size());
+                if(!(isNotUnique = isInArray(randomList, randNum, index)))
+                {
+                    randomList[index] = randNum;
+                }
+            }while(isNotUnique);
+            player.startPlaying(tracks.get(index).getFilename());
+        }
+       
+    }
+    
+       /**
+       * method to return whether a passed integer is in an array of integers
+       * 
+       * @param randomList is a integer array of random number
+       * @param num is a number passed in to compare with already entered values in randomList
+       * @param index is the current element of randomList array that is being filled all entries
+       *        in array randomList that have an index < index will be compared
+       * @return returns true if num is an element of randomList, false otherwise
+       */
+    private boolean isInArray(int[] randomList, int num, int index)
+    {
+        for(int searchVariable = 0; searchVariable < index; searchVariable++)
+        {
+            if(randomList[searchVariable] == num)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 }
